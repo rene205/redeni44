@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="container-lg mt-4">
+    <!--_messages.html sorgt dafür, dass eine flash-message auf der Seite angezeigt wird-->
+    {% include '_messages.html' %}
+        <!--Jenachdem, welche Variable an das Template übergeben wird, werden entweder die Marken oder die Kategorien angezeigt.-->
+        {% if addbrands %}
+            <h1>Marke hinzufügen</h1>
+        {% else %}
+            <h1>Kategorie hinzufügen</h1>
+        {% endif %}
+
+    <div class="row">
+        <div class="col-md-6">
+            <!--Jenachdem, welche Variable an das Template übergeben wird, wird entweder das Formular "brand" oder "category genutzt."-->
+            {% if addbrands %}
+                <form action="" method="POST">
+                    <input type="text" name="brand" class="form-control">
+                    <input type="submit" value="Hinzufügen" class="btn btn-info mt-2">
+                </form>
+            {% else %}
+                <form action="" method="POST">
+                    <input type="text" name="category" class="form-control">
+                    <input type="submit" value="Hinzufügen" class="btn btn-info mt-2">
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

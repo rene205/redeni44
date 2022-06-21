@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block content%}
+
+<div class="album">
+    <div class="container-lg my-4">
+        {% include '_messages.html' %}
+        <h1>Suchergebnisse</h1>
+<!--Produktübersicht, wenn die Suchergebnisse ausgegeben werden------------------------------------>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-3">
+        <!--Die Anzeige der Suchergebnisse erfolgt wie die Anzeige der Produktübersicht.
+        Der Unterschied ist, dass in "products" nur die Produkte enthalten sind, die durch die Suche ausgegeben worden sind-->
+        <!--Ebenfalls gibt es bei der Suche keine Seitenauswahl am unteren Bildschirmrand. Alle Produkte werden auf einer Seite angezeigt.-->
+        {% for product in products %}
+            <div class="col d-flex">
+                <div class="card shadow-sm flex-fill">
+                    <div class="card-title card-header m-3">
+                        <p class="h5">{{product.name}}</p>
+                    </div>
+                    <div class="bd-placeholder-img text-center">
+                        <a href="{{url_for('items.single_page', id=product.id)}}"><img class="img-fluid" src="{{url_for('static', filename='product_pics/' + product.image_1)}}" alt="{{product.name}}" style="max-height: 300px;"></a>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        {% if product.discount > 0 %}
+                        <div class="mb-2">
+                            <small class="text-muted"><s>{{product.price}}€</s></small>
+                            <small class="text-danger">- {{product.discount}}% &nbsp;</small>
+                            <small class="text-danger">{{'%0.2f' | format(product.price|float - (product.price|float * (product.discount|float/100)))}}€</small>
+                        </div>
+                        {% else %}
+                            <small class="text-muted">{{product.price}}€</small>
+                        {% endif %}
+                        <div class="mt-auto">
+                            <a href="{{url_for('items.single_page', id=product.id)}}" class="float-left btn btn-sm btn-outline-secondary">Anzeigen</a>
+                            <form action="{{url_for('cart.AddCart')}}" method="POST">
+                                <input type="hidden" name="product_id" value="{{product.id}}">
+                                <button type="submit" class="btn btn-sm btn-warning mt-2">In den Warenkorb</button>
+                                <input type="hidden" name="quantity" id="" value="1" min="1" max=" {{product.stock}}">
+                                {% set colors = product.colors.split(',') %}
+                                <select name="colors" id="colors" style="visibility: hidden;">
+                                {% for color in colors %}
+                                {% set col = color.split(':') %}
+                                <option value="{{col[0]}}">{{col[0]|capitalize}}</option>
+                                {% endfor %}
+                                </select>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

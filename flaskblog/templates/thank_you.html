@@ -1,0 +1,134 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<!--"thank:you" zeigt in den meisten Fällen die gleichen Informationen an wie "order".
+Die Stellen, die sich unterscheiden, werden nachfolgend beschrieben.-->
+
+<!--Anzeigen der Überschrift-->
+<div class="container-lg">
+  <div class="jumbotron text-center mt-4">
+    <h1 class="display-3">Danke für deine Bestellung!</h1>
+    <hr>
+  </div>
+</div>
+
+<!--Anzeigen der Kundendaten-->
+<div class="container-lg mt-4">
+  <div class="content-section">
+    <div class="row">
+      <div class="col-md-6">
+        <table>
+          <tbody>
+            <tr>
+              <td><b>Name:</b></td>
+              <td>{{customer.firstname}} {{customer.lastname}}</td>
+            </tr>
+            <tr>
+              <td width="180"><b>Rechnungsnummer:</b></td>
+              <td width="180">{{orders.invoice}}</td>
+            </tr>
+            <!--Zusätzlich werden die Rechnungsnummer und der Bestellstatus angezeigt.-->
+            <tr>
+              <td><b>Status:</b></td>
+              <td>
+                {% if orders.status == 'Paid' %}
+                Bezahlt
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <td ><b>E-Mail:</b></td>
+              <td>{{customer.email}}</td>
+            </tr>
+            <tr>
+              <td><b>Telefonnummer:</b></td>
+              <td>{{customer.contact}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="col-md-6">
+        <table class="mt-4 mt-md-0">
+          <tbody>
+            <tr>
+              <td class="align-top" width="90"><b>Adresse:</b></td>
+              <td>{{customer.address}}
+                  <br>
+                  {{customer.zipcode}} {{customer.city}}
+                  <br>
+                  {{customer.country}}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Anzeigen der Bestellten Produkte-->
+<div class="container-lg">
+  <div class="content-section">
+    <div class="row">
+      <div class="table-responsive">
+        <table class="table table-sm">
+          <thead>
+            <th>Nr.</th>
+            <th>Bild</th>
+            <th>Name</th>
+            <th>Farbe</th>
+            <th>Preis</th>
+            <th>Menge</th>
+            <th>Rabatt</th>
+            <th>Zwischensumme</th>
+          </thead>
+
+          <!--Die Informationen zu den Bestellten Produkten werden in "thank_you" nun nicht mehr aus der Session abgerufen, sondern aus der Datenbank-->
+          <!--Das ist der Fall, da die Bestellung mit dem Bezahlvorgang in die Bestellung geschrieben wird.-->
+          <tbody>
+            {% for key, product in orders.orders.items() %}
+            {% set discount = "%0.2f" |format((product.discount/100) * product.price|float) %}
+            <tr>
+              <td>{{loop.index}}</td>
+              <td><img src="{{url_for('static', filename='product_pics/' + product.image)}}" alt="{{product.name}}" width="50"></td>
+              <td>{{product.name}}</td>
+              <form action="{{url_for('cart.updatecart', code=key)}}" method="post">
+                <td>{{ product.color }}</td>
+                <td>{{product.price}}€</td>
+                <td>{{product.quantity}}</td>
+                {% if product.discount > 0 %}
+                  <td>{{product.discount}}%</td>
+                {% else %}
+                  <td></td>
+                {% endif %}
+                {% set subTotal = product.quantity|int * product.price|float %}
+                <td>{{"%0.2f"|format((subTotal|float) - (product.quantity|int * discount|float))}}€</td>
+              </form>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table">
+          <tr>
+            <td class="text-center">Enthaltene MwSt: {{tax}}€</td>
+            <td class="text-center">Gesamtbetrag: {{grandTotal}}€</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Anzeigen des "Zurück zur Startseite" Buttons-->  
+<div class="container-lg mb-4">
+  <div class="jumbotron text-center mt-2">
+    <p class="lead"><a class="btn btn-lg btn-success" href="{{url_for('main.home')}}" role="button">Zurück zur Startseite</a></p>
+  </div>
+</div>
+
+{% endblock content %}

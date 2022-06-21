@@ -1,0 +1,140 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<!--Anzeigen der Überschrift-->
+<div class="container-lg mt-4">
+    {% include '_messages.html' %}
+    <div class="">
+        <h1>Bestellübersicht</h1>
+    </div>
+</div>
+
+<!--Anzeigen der Kundendaten-->
+<div class="container-lg mt-4">
+    <div class="content-section">
+        <div class="row">
+            <div class="col-md-6 d-flex">
+                <table>
+                    <!--Es werden Name, E-Mail und Telefonnummer des Kunden angezeigt.
+                    Die Daten hierfür sind in "custtomer" gespeichert und kommen aus der Datenbank und werden an das Template übergeben.-->
+                    <tbody>
+                        <tr>
+                            <td><b>Name:</b></td>
+                            <td>{{customer.firstname}} {{customer.lastname}}</td>
+                        </tr>
+                        <tr>
+                            <td><b>E-Mail:</b></td>
+                            <td>{{customer.email}}</td>
+                        </tr>
+                        <tr>
+                            <td width="160"><b>Telefonnummer:</b></td>
+                            <td>{{customer.contact}}</td>
+                        </tr>
+                    </tbody>
+                </table> 
+            </div>
+            <div class="col-md-6">
+                <!--In einer weiteren Tabelle wird die Adresse (Straße, Hausnummer, Postleitzahl, Stadt und Land) angezeigt.
+                Die Daten hierfür sind in "custtomer" gespeichert und kommen aus der Datenbank und werden an das Template übergeben.-->
+                <table class="mt-4 mt-md-0">
+                    <tbody>
+                        <tr>
+                            <td class="align-top" width="90"><b>Adresse:</b></td>
+                            <td>{{customer.address}}
+                            <br>
+                            {{customer.zipcode}} {{customer.city}}
+                            <br>
+                            {{customer.country}}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Anzeigen der Bestellung-->
+<div class="container-lg">
+    <div class="content-section">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <th>Nr.</th>
+                            <th>Bild</th>
+                            <th>Name</th>
+                            <th>Farbe</th>
+                            <th>Preis</th>
+                            <th>Menge</th>
+                            <th>Rabatt</th>
+                            <th>Zwischensumme</th>
+                        </thead>
+
+                        <!--Die Bestelldaten werden aus der Session "Shoppingcart" entnommen und auf die gleiche Weise angezeigt wie der Warenkorb.-->
+                        <tbody>
+                            {% for key, product in session['Shoppingcart'].items() %}
+                            {% set discount = "%0.2f" |format((product.discount/100) * product.price|float) %}
+                            <tr>
+                                <td>{{loop.index}}</td>
+                                <td><img src="{{url_for('static', filename='product_pics/' + product.image)}}" alt="{{product.name}}" width="50"></td>
+                                <td>{{product.name}}</td>
+                                <form action="{{url_for('cart.updatecart', code=key)}}" method="post">
+                                    <td>{{ product.color }}</td>
+                                    <td>{{product.price}}€</td>
+                                    <td>{{product.quantity}}</td>
+                                    {% if product.discount > 0 %}
+                                        <td>{{product.discount}}%</td>
+                                    {% else %}
+                                        <td></td>
+                                    {% endif %}
+                                    {% set subTotal = product.quantity|int * product.price|float %}
+                                    <td>{{"%0.2f"|format((subTotal|float) - (product.quantity|int * discount|float))}}€</td>
+                                </form> 
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!--Im letzten Schritt werden Mwst., Gesamtbetrag und Buttons zum Abbrechen und Bezahlen angezeigt.-->
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <tr>
+                            <td><a href="{{url_for('cart.getCart')}}" class="btn btn-sm btn-info float-left">Abbrechen</a></td>
+                            <td></td>
+                            <td class="text-center">Enthaltene MwSt: {{tax}}€</td>
+                            <td class="text-center">Gesamtbetrag: {{"%0.2f" |format(grandTotal)}}€</td>
+                            <td class="text-end">
+                                <!--Die Bezahlung wird über Stripe abgewickelt.-->
+                                <form action="{{url_for('users.payment')}}" method="POST">
+                                    <input type="hidden" name="amount" value="{{amount}}">
+                                    <!--Es werden Informationen an Stripe übermittelt. Dazu gehört der Preis, und die Währung und die E-Mail Adresse des Kunden.-->
+                                    <script
+                                    src="https://checkout.stripe.com/checkout.js"
+                                    class="stripe-button"
+                                    data-key="pk_test_51L9UNpJhnXbsS5Vr4IxJ4ps85ZnAw9pRR0na1Qkg5eRo0cMOSXvZda5IK1whxO4J2pELlkViz7PMPqVpcJp62fQI00Dyl1548s"
+                                    data-name="REDENI"
+                                    data-description="Deine Bestellung"
+                                    data-amount="{{amount}}"
+                                    data-currency="eur"
+                                    data-email="{{customer.email}}">
+                                    </script>
+                                    <!--Aus optischen Gründen wird der Stripe Button ausgeblendet und durch einen eigenen Button ersetzt.-->
+                                    <script>
+                                        document.getElementsByClassName("stripe-button-el")[0].style.display = 'none';
+                                    </script>
+                                    <button type="submit" class="btn btn-success">Bezahlen</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content%}

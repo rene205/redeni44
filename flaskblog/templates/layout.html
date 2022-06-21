@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.2/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
+    {% if title %}
+        <title>Flask Blog - {{ title }}</title>
+    {% else %}
+        <title>Flask Blog</title>
+    {% endif %}
+</head>
+<!--HTML Body-->
+<body class="d-flex flex-column min-vh-100">
+  <!-- Navbar  https://mdbootstrap.com/docs/standard/navigation/navbar/#-->
+  <nav class="navbar navbar-expand-xl navbar-dark bg-steel fixed-top">
+    <!-- Container wrapper -->
+    <div class="container-fluid justify-content-between">
+
+      <!-- 1. Flex Element -->
+      <div>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+        </button>
+
+       <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mb-2 mb-lg-0">
+            <li class="nav-item active"><a class="nav-link" href="{{ url_for('items.products') }}">Alle Produkte</a></li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"  aria-haspopup="true" aria-expanded="false">Kategorien</a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <a class="dropdown-item" href="{{ url_for('items.products') }}">Alle Produkte</a>
+                  {% for category in categories2 %}
+                    <a class="dropdown-item" href="{{url_for('admin.get_category', id = category.id)}}">{{ category.name }}</a>
+                  {% endfor %}
+                  {% for brand in brands %}
+                    <a class="dropdown-item" href="{{url_for('admin.get_brand', id = brand.id)}}">{{ brand.name }}</a>
+                  {% endfor %}
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"  aria-haspopup="true" aria-expanded="false">Marken</a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <a class="dropdown-item" href="{{ url_for('items.products') }}">Alle Produkte</a>
+                  {% for brand in brands3 %}
+                    <a class="dropdown-item" href="{{url_for('admin.get_brand', id = brand.id)}}">{{ brand.name }}</a>
+                  {% endfor %}
+                </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- 2. Flex Element -->
+      <div>
+        <a class="navbar-brand logo" href="{{ url_for('main.home') }}">REDENI</a>
+      </div>
+
+      <!-- 3. Flex Element -->
+      <div>
+        <button class="navbar-toggler" 
+        type="button" 
+        data-bs-toggle="collapse" 
+        data-bs-target="#navbarSupportedContent2" 
+        aria-controls="navbarSupportedContent2" 
+        aria-expanded="false" 
+        aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent2">
+          <ul class="navbar-nav mb-2 mb-lg-0">
+            <!--Diese if Abfrage ist dafürda, dass "Login" und "Registrieren" nicht mehr angezeigt wird, wenn eine User eingeloggt ist.-->
+            {% if current_user.is_authenticated %}
+              {% if current_user.id == 1 %}  
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"  aria-haspopup="true" aria-expanded="false">Administration</a>
+                  <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="{{ url_for('admin.categories') }}">Kategorien anzeigen</a>
+                    <a class="dropdown-item" href="{{ url_for('admin.addcat') }}">Kategorie hinzufügen</a>
+                    <a class="dropdown-item" href="{{ url_for('admin.brands') }}">Marken anzeigen</a>
+                    <a class="dropdown-item" href="{{ url_for('admin.addbrand') }}">Marke hinzufügen</a>
+                    <a class="dropdown-item" href="{{ url_for('admin.admin_addproducts') }}">Produkte anzeigen</a>
+                    <a class="dropdown-item" href="{{ url_for('admin.addproduct') }}">Produkte hinzufügen</a>
+                  </div>
+               {% endif %}  
+              <li class="nav-item active"><a class="nav-link" href="{{url_for('posts.new_post') }}"> Neuer Kommentar</a></li>
+              <li class="nav-item active"><a class="nav-link" href="{{url_for('users.logout') }}"> Ausloggen</a></li>
+              <li class="nav-item me-3 me-lg-0"><a class="nav-link" href="{{url_for('cart.getCart') }}"><i class="bi bi-cart-fill"></i>({{session['Shoppingcart']|length}})</a></li>
+              <li class="nav-item active"><a class="nav-link" href="{{url_for('users.account') }}">Mein Konto   <i class="bi bi-person-circle"></i></a></li>
+            {% else %}
+              <li class="nav-item active"><a class="nav-link" href="{{ url_for('users.register') }}"> Registrieren</a></li>
+              <li class="nav-item active"><a class="nav-link" href="{{ url_for('users.login') }}"> Anmelden</a></li>
+              <li class="nav-item me-3 me-lg-0"><a class="nav-link" href="{{url_for('cart.getCart') }}"><i class="bi bi-cart-fill"></i>({{session['Shoppingcart']|length}})</a></li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!-- Container wrapper -->
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row py-3 height d-flex justify-content-evenly align-items-center bg-steel ">
+      <div class="col-md-6">
+        <form action="{{url_for('result')}}">
+          <div class="input-group">
+            <input type="search" class="form-control me-2" placeholder="Suchen" aria-label="Search" name="q">
+            <span class="input-group-btn">
+              <button class="btn btn-steel" type="submit"><i class="bi bi-search" style="color:white;"></i></button>
+            </span>
+          </div> 
+        </form> 
+      </div>
+    </div>
+  </div>
+
+  {% block content %}
+
+  {% endblock %}
+
+<footer class="bg-light text-center text-lg-start mt-auto" >
+  <div class="container p-3"  >
+    <!--div class="row d-flex justify-content-center"-->
+    <div class="row text-left">
+        <div class="col-lg-3 col-md-6 col-sm-12">
+          <h5 class="text-uppercase mt-lg-0 mt-4">Service</h5>
+          <ul class="list-unstyled mb-0">
+              <li><a class="leiste text-dark" href="{{ url_for('footer.versand_lieferung') }}">Versand &amp; Lieferung</a></li>
+              <li><a class="leiste text-dark" href="{{ url_for('footer.zahlung') }}">Zahlung</a></li>
+              <li><a class="leiste text-dark" href="{{ url_for('footer.ruecksendung') }}">Rücksendung</a></li>
+              <li><a class="leiste text-dark" href="{{ url_for('footer.faq') }}">FAQ</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-3 col-md-6 col-sm-12">
+          <h5 class="text-uppercase mt-lg-0 mt-4">Über uns</h5>
+          <ul class="list-unstyled mb-0">
+              <li><a class="leiste text-dark" href="{{ url_for('footer.about') }}">Über uns</a></li>
+              <li><a class="leiste text-dark" href="{{ url_for('footer.impressum') }}">Impressum</a></li>
+              <li><a class="leiste text-dark" href="{{ url_for('footer.agb') }}">AGB</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-3 col-md-6 col-sm-12">
+          <h5 class="text-uppercase mt-lg-0 mt-4">Support</h5>
+          <ul class="list-unstyled mb-0">
+              <li><a class="leiste text-dark" href="{{ url_for('footer.kontakt') }}">Kontakt</a></li>
+              <li><a class="leiste text-dark" href="{{ url_for('footer.garantie') }}">Garantie</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-3 col-md-6 col-sm-12">
+          <h5 class="text-uppercase mt-lg-0 mt-4">Folge Uns</h5>
+          <ul class="list-unstyled mb-0">
+              <li><a class="leiste text-dark" href="https://www.instagram.com">Instagram</a></li>
+              <li><a class="leiste text-dark" href="https://www.facebook.com">Facebook</a></li>
+              <li><a class="leiste text-dark" href="https://www.twitter.com">Twitter</a></li>
+          </ul>
+        </div>
+
+      <div class="text-center p-3 col-12 text-muted">Copyright © 2022 
+        <a class="text-muted" href="{{ url_for('main.home') }}">REDENI.de</a> Alle Rechte vorbehalten.
+      </div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

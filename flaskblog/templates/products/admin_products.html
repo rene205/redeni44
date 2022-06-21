@@ -1,0 +1,66 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <!--_messages.html sorgt dafür, dass eine flash-message auf der Seite angezeigt wird-->
+    {% include '_messages.html' %}
+    <h1>Produkte</h1>
+        <div class="content-section">
+            <div class="table-responsive">
+                <table class="table table-sm table-condensed table-hover ">
+                    <!--Tabellen Überschriften-->
+                    <thead>
+                        <th>Nr.</th>
+                        <th>Produkt</th>
+                        <th>Preis</th>
+                        <th>Rabatt</th>
+                        <th>Marke</th>
+                        <th>Bild</th>
+                        <th>Bearbeiten</th>
+                        <th>Löschen</th>
+                    </thead>
+
+                    <tbody>
+                    <!--"products" wird an das Template übergebeb. Aus "products" werden dann mithilfe der For-Schleife alle Informationen entnommen und in der Tabelle angezeigt.-->
+                    {% for product in products %}
+                        <tr>
+                            <td>{{loop.index}}</td>
+                            <td>{{product.name}}</td>
+                            <td>{{product.price}}€</td>
+                            <td>{{product.discount}}%</td>
+                            <td>{{product.brand.name}}</td>
+                            <!--Anzeige des ersten Bildes-->
+                            <td><img src="{{url_for('static', filename='product_pics/' + product.image_1)}}" width="40" height="40"></td>
+                            <td><a href="{{url_for('admin.updateproduct', id=product.id)}}" class="btn btn-sm btn-outline-info">Bearbeiten</a></td>
+                            <td><button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal-{{product.id}}">Löschen</button></td>  
+                        </tr>
+
+                        <!--Pop-Up Menü, welches danach fragt, ob das ausgwählte Produkt wirklich gelöscht werden soll.
+                        Erscheint beim Klick auf den "Löschen" Button.-->
+                        <div class="modal fade" id="exampleModal-{{product.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">{{product.name}}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p class="">Sind Sie sich sicher, dass Sie das Produkt löschen wollen?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Abbrechen</button>
+                                        <form action="{{url_for('admin.deleteproduct', id=product.id)}}" method="POST">
+                                            <button type="submit" class="btn btn-danger btn-sm">Löschen</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+</div>
+{% endblock content%}
